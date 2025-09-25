@@ -1,0 +1,683 @@
+<div class="brands-banner">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/dodge  ram.png" alt="Dodge & RAM" class="brand-logo" data-brand="dodge-ram">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 2.png" alt="Ford Trucks" class="brand-logo" data-brand="ford-trucks">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Logo_honda_auto_blanc_vertical.png" alt="Honda Auto" class="brand-logo" data-brand="honda-auto">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 4.png" alt="Honda Moto" class="brand-logo" data-brand="honda-moto">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Hyundai_ligne_blanc.png" class="brand-logo" data-brand="hyundai">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Logo isuzu.png" alt="Isuzu" class="brand-logo" data-brand="isuzu">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 7.png" class="brand-logo" data-brand="kymco">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Lotus logo.png" alt="LOTUS" class="brand-logo" data-brand="lotus">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 5.png" alt="Maxus" class="brand-logo" data-brand="maxus">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/MG logo_white.png" alt="MG Motor" class="brand-logo" data-brand="mg-motor">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Mitsubishi_blanc.png" alt="Mitsubishi Motors" class="brand-logo" data-brand="mitsubishi">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 1.png" alt="Nissan Trucks" class="brand-logo" data-brand="nissan-trucks">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 6.png" alt="Schmitz Cargobull" class="brand-logo" data-brand="schmitz-cargobull">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 7-1.png" alt="SUZUKI MOTO" class="brand-logo" data-brand="suzuki">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 8.png" alt="TRIUMPH" class="brand-logo" data-brand="triumph">
+  <img src="images/THEOBALD/Visuels Groupe THEOBALD/test acceuil/logo/Plan de travail 3.png" alt="Volvo Trucks" class="brand-logo" data-brand="volvo-trucks">
+</div>
+
+<div class="brand-map-container">
+  <div id="sidePanel" class="side-panel">
+    <button id="closePanel" class="close-btn">&times;</button>
+    <h2 id="panelTitle">Concessions</h2>
+    <ul id="concessionsList"></ul>
+    <div id="concessionDetails" class="concession-details"></div>
+  </div>
+  <div id="map" class="map"></div>
+</div>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body { margin:0; font-family: Arial,sans-serif; }
+
+.brands-banner {
+  display: flex; justify-content: center; gap: 20px;
+  background: #10253d; padding: 10px 0; overflow-x: auto;
+}
+.brand-logo { height: 80px; cursor: pointer; transition: transform 0.2s; }
+.brand-logo:hover { transform: scale(1.1); }
+
+.brand-map-container { display: flex; width: 100%; height: 500px; position: relative; }
+
+.side-panel {
+  width: 0; height: 100%; background: #fff;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+  overflow-y: auto; transition: width 0.3s ease, padding 0.3s ease;
+  padding: 0; z-index: 999; position: absolute; left: 0; top: 0;
+}
+.side-panel.open { width: 400px; padding: 20px; }
+
+.close-btn {
+  position: absolute; top:10px; right:10px; border:none;
+  background:transparent; font-size:24px; cursor:pointer;
+}
+.side-panel h2 { margin-top:40px; }
+.side-panel ul { list-style:none; padding:0; }
+.side-panel li { cursor:pointer; margin-bottom:10px; color:#0073aa; }
+.side-panel li:hover { text-decoration: underline; }
+
+.concession-details {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+.concession-details img {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+.map { flex:1; height:100%; transition: margin-left 0.3s ease; }
+.map.shifted { margin-left: 250px; }
+
+@media (max-width: 768px) {
+  .brands-banner {
+   display: flex;
+   justify-content: flex-start; /* pour que les logos commencent à gauche */
+   gap: 10px;
+   padding: 10px;
+   overflow-x: auto;
+   -webkit-overflow-scrolling: touch; /* pour un scroll fluide sur iOS */
+  }
+  
+  .brand-logo {
+    height: 60px; 
+    min-width: 60px;      /* assure que les logos ne deviennent pas trop petits */
+    flex-shrink: 0;       /* empêche le logo de rétrécir */
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .brand-map-container {
+    height: calc(100vh - 120px);
+  }
+  
+  .side-panel {
+    width: 100% !important;
+    height: 40vh;
+    position: fixed;
+    left: 0;
+    bottom: -100%;
+    top: auto;
+    transition: bottom 0.4s ease-out;
+    background: #fff;
+    z-index: 2000;
+    overflow-y: auto;
+    padding: 15px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+  }
+  
+  .side-panel.open { 
+    bottom: 0; 
+  }
+  
+  .side-panel h2 { 
+    margin-top: 30px; 
+    font-size: 1.4em;
+    text-align: center;
+    color: #10253d;
+  }
+  
+  .side-panel li {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #0073aa;
+    font-size: 14px;
+  }
+  
+  .side-panel li:hover {
+    background: #e9ecef;
+  }
+  
+  .concession-details {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .concession-details strong {
+    color: #10253d;
+    font-size: 16px;
+  }
+  
+  .concession-details img {
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+  
+  .map { 
+    height: 100%; 
+    margin-left: 0 !important; 
+  }
+  
+  .close-btn {
+    font-size: 28px;
+    color: #666;
+    top: 8px;
+    right: 15px;
+  }
+  
+  .close-btn:hover {
+    color: #333;
+  }
+}
+  .side-panel.open { bottom: 0; }
+  .map { height: 600px; margin-left: 0 !important; }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const sidePanel = document.getElementById('sidePanel');
+  const concessionsList = document.getElementById('concessionsList');
+  const panelTitle = document.getElementById('panelTitle');
+  const concessionDetailsDiv = document.getElementById('concessionDetails');
+  const brandLogos = document.querySelectorAll('.brand-logo');
+  const mapContainer = document.getElementById('map');
+  const closeBtn = document.getElementById('closePanel');
+
+  const initialView = { lat: 49, lon: 6.1, zoom: 8 };
+  let activeBrand = null;
+  let allMarkers = [];
+
+  // =======================
+  // Données des marques
+  // =======================
+    const brandsData = {
+    "dodge-ram": {
+      color: 'red',
+      locations: [
+        { 
+        name: "Dodge & RAM WOIPPY", 
+        lat: 49.15505923784837, 
+        lon: 6.157620490471631, 
+        details: `85 Avenue de Thionville,<br>57140 WOIPPY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.15505923784837,6.157620490471631"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387363330'> 03 87 36 33 30</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</b></u><br>Du lundi au vendredi : 8h-12h / 13h30-17h30 <br>(chez Hyundai au 6 rue du Saintois à Laxou)`,
+        },
+      ]
+    },
+    "ford-trucks": {
+      color: 'darkblue',
+      locations: [
+        { 
+        name: "Ford Trucks Lesménils", 
+        lat: 48.939528689104804,
+        lon: 6.116076810320074, 
+        details: `207 rue du Chêne Brule,
+            <br>54700 LESMÉNILS
+            <br>
+              <i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.939528689104804,6.116076810320074"> Y aller</a>
+            <br>
+              <i class='fa fa-phone'></i><a href='tel:0383811404'> 03 83 81 14 04</a>
+            <br>
+            <b><u>Horaires Service commercial:</u></b>
+            <br>Du lundi au vendredi : 8h-12h / 14h-18h
+            <br><b><u>Horaires Service après-vente:</b></u>
+            <br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+        },
+      ]
+    },
+    "honda-auto": {
+      color: 'black',
+      locations: [
+        { 
+        name: "Honda Metz", 
+          lat: 49.1547, lon: 6.1575, 
+          details: `10 Rue du Pré Talange,<br>57140 WOIPPY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.1547,6.1575"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387718318'> 03 87 71 83 18</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</b></u><br>Du lundi au vendredi : 8h-12h / 13h30-18h",
+          img: "https://www.theobald-groupe.com/templates/yootheme/cache/Concession%20Honda_Woippy_0525-fa716c31.webp`, 
+        },
+        { 
+        name: "Honda Nancy", 
+          lat: 48.6908, lon: 6.1318, 
+          details: `6 rue du Saintois,<br>54520 LAXOU<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.6908,6.1318"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383987000'> 03 83 98 70 00</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</b></u><br>Du lundi au vendredi : 8h-12h / 13h30-17h30",
+          img: "https://www.theobald-groupe.com/templates/yootheme/cache/concession%20Honda%20Nancy-55e17f80.webp` 
+        },
+        { 
+        name: "Honda Reims", 
+          lat: 49.22608096294276, 
+          lon: 4.026415196403797, 
+          details: `170 Rue André Faivre,<br>51100 REIMS<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.22608096294276,4.026415196403797"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0326244555'> 03 26 24 45 55</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h30-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</b></u><br>Du lundi au jeudi : 8h30-12h / 14h-18h15<br>Le vendredi : 8h30-12h / 14h-18h30", 
+          img: "https://www.theobald-groupe.com/templates/yootheme/cache/Reims_auto_nos_concessions_site-2956616a.webp` },
+        { 
+        name: "Honda Sarreguemines", 
+        lat: 49.110391526060454, 
+        lon: 7.098208141956501, 
+        details: `1 rue Joseph Cugnot,<br>57200 SARREGUEMINES<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.110391526060454,7.098208141956501"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387954646'> 03 87 95 46 46</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</b></u><br>Du lundi au vendredi : 8h-12h / 13h30-18h<br>Le vendredi : 8h30-12h / 14h-18h30",
+        img: "https://www.theobald-groupe.com/templates/yootheme/cache/concession_honda_sarreguemines_1-7d8a75dc.webp` },
+      ]
+    },
+    "honda-moto": {
+      color: 'red',
+      locations: [
+    { 
+      name: "T-2R Honda Nancy", 
+      lat: 48.68399449825444, 
+      lon: 6.2017858282482985, 
+      details: `38, rue de Remenauville,<br>54000 Nancy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.68399449825444,6.2017858282482985"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:03831920'> 03 83 19 20 54</a><br><b><u>Horaires Service commercial:</u></b><br> Du mardi au vendredi : 9h-12h / 14h-19h<br> Le samedi : 9h-12h / 14h-17h45<br><b><u>Horaires Service après-vente:</u></b><br> Du mardi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-17h45", 
+      img: "https://www.theobald-groupe.com/templates/yootheme/cache/Honda_moto_Nancy_site-7f4a915c.webp` },
+    { 
+      name: "T-2R Honda Reims", 
+      lat: 49.2261344473972, 
+      lon: 4.026476257247576, 
+      details: `Av. de Champagne,170 Rue André Faivre,<br>51100 Reims<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.2261344473972,4.026476257247576"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0326244555'> 03 26 24 45 55</a><br><b><u>Horaires Service commercial:</u></b><br>Du mardi au vendredi : 9h-12h / 14h-18h30<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br> Du mardi au vendredi : 9h-12h / 14h-18h30<br>Le samedi : 9h-12h / 14h-18h",
+      img: "https://www.theobald-groupe.com/templates/yootheme/cache/Honda_moto_reims_site_nos_concessions-8f4de475.webp` },
+      ]
+    },
+    "hyundai": {
+      color: 'purple',
+      locations: [
+        { 
+        name: "Hyundai Metz", 
+        lat: 49.0732817097609, 
+        lon: 6.112258595279504, 
+        details: `81 rue Adrienne Bolland, <br>57685 AUGNY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.0732817097609,6.112258595279504"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387223232'> 03 87 22 32 32</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h",
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC05812-Modifier-58878506.webp`,
+        },
+        { 
+        name: "Hyundai Nancy", 
+        lat: 48.691222134603386, 
+        lon: 6.131593106655531, 
+        details: `6 rue du Saintois, <br>54520 LAXOU<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.691222134603386,6.131593106655531"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383983232'> 03 83 98 32 32</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30", 
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC02068-Modifier-caab7a2d.webp`,
+        },
+        { 
+        name: "Hyundai Saint-Dié-Des-Vosges", 
+        lat: 48.26847126223216, 
+        lon: 6.96180574611223, 
+        details: `480 Chemin du Faing, <br>88100 Sainte-Marguerite<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.26847126223216,6.96180574611223"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0329273232'> 03 29 27 32 32</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30",
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/CONCESSION_HYUNDAI_ST_DIE_1-611d16e8.webp`,
+        },
+        { 
+        name: "Hyundai Sarreguemines", 
+        lat: 49.11040689392525, 
+        lon: 7.098273904328087, 
+        details: `1 rue Joseph Cugnot, <br>57200 SARREGUEMINES<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.11040689392525,7.098273904328087"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387954646'> 03 87 95 46 46</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h", 
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC06758-Modifier-0625-be744ab2.webp`,
+        },
+        { 
+        name: "Hyundai Thionville", 
+        lat: 49.33883178835647, 
+        lon: 6.158683845717234, 
+        details: `14 allée du Château de Gassion, <br>57100 THIONVILLE<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.33883178835647,6.158683845717234"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0382883232'> 03 82 88 32 32</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h",
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC01589-Modifier-7d9edf89.webp`,
+        }
+      ]
+    },
+    "isuzu": {
+      color: 'darkblue',
+      locations: [
+    { 
+      name: "Isuzu Metz", 
+      lat: 49.15505599139641, 
+      lon: 6.157621037700943, 
+      details: `85 Avenue de Thionville, <br>57140 Woippy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.15505599139641,6.157621037700943"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387223636'> 03 87 22 36 36</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30`, 
+    },
+    { 
+      name: "Isuzu Nancy", 
+      lat: 48.69194583492989, 
+      lon: 6.129534937313794, 
+      details: `3 rue du Saintois, <br>54520 Laxou<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.69194583492989,6.129534937313794"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383982324'> 03 83 98 23 24</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+      },
+      ]
+    },
+    "kymco": {
+      color: 'orange',
+      locations: [
+    { 
+      name: "T-2R KYMCO Nancy", 
+      lat: 48.68387405030958, 
+      lon: 6.201867374316809, 
+      details: `38, rue de Remenauville, <br>54000 Nancy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.68387405030958,6.201867374316809"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383989696'> 03 83 98 96 96</a><br><b><u>Horaires Service commercial:</u></b><br>Du mardi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-17h45<br><b><u>Horaires Service après-vente:</u></b><br>Du mardi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-17h45`,
+      },
+      ]
+    },
+    "lotus": {
+      color: 'pink',
+      locations: [
+        { 
+        name: "LOTUS LAXOU", 
+        lat: 48.69196896517748, 
+        lon: 6.129405478545942, 
+        details: `3 rue du Saintois, <br>54520 LAXOU<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.69196896517748,6.129405478545942"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383933330'> 03 83 93 33 30</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30<br>(chez Hyundai au 6 rue du Saintois à Laxou)`,
+        }, 
+      ]
+    },
+    "maxus": {
+      color: 'green',
+      locations: [
+        { 
+        name: "Maxus Metz", 
+        lat: 49.15496565300297, 
+        lon: 6.157575417866072, 
+        details: `10 Rue du Pré Talange, <br>57140 WOIPPY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.15496565300297,6.157575417866072"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387363330'> 03 87 36 33 30</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/maxus-mars-25-7-1f0330e6.webp", 
+        },
+        { 
+        name: "Maxus Nancy", 
+        lat: 48.6901617007094, 
+        lon: 6.132214502500691, 
+        details: `8 rue du Saintois, 54520 LAXOU<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.6901617007094,6.132214502500691"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383933330'> 03 83 93 33 30</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+        img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC08319-12ca9346.webp", 
+        },
+      ]
+    },
+    "mg-motor": {
+      color: 'crimson',
+      locations: [
+    { 
+    name: "MG Motor Haguenau", 
+    lat: 48.82733632532748, 
+    lon: 7.751345983171141, 
+    details: `21 Rue de la Sablière, 67590 Schweighouse-sur-Moder<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.82733632532748,7.751345983171141"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0388052320'> 03 88 05 23 20</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 7h45-12h / 13h45-17h45`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/Haguenau_site_1-4fdc8c38.webp", 
+    },
+    { 
+    name: "MG Motor Longwy", 
+    lat: 49.52091899643228, 
+    lon: 5.772313284060867, 
+    details: `31 Av. de Saintignon, 54400 LONGWY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.52091899643228,5.772313284060867"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0382560444'> 03 82 56 04 44</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/MG_LONGWY-d875e15a.webp",
+    },
+    { 
+    name: "MG Motor Metz", 
+    lat: 49.154971099433126, 
+    lon: 6.157578463519622, 
+    details: `10 Rue du Pré Talange, 57140 WOIPPY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.15497109943312,6.157578463519622"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387363330'> 03 87 36 33 30</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC06569-Modifier-433f886a.webp",
+    },
+    { 
+    name: "MG Motor Nancy", 
+    lat: 48.690154870464276, 
+    lon: 6.132208875401994, 
+    details: `8 rue du Saintois, 54520 LAXOU<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.15497109943312,6.157578463519622"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0383933330'> 03 83 93 33 30</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>(au 6 rue du Saintois à Laxou)<br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/MG_Nancy_0725-37cda9b7.webp", 
+    },
+    { 
+    name: "MG Motor Saint-Dié-des-Vosges", 
+    lat: 48.26885005446068, 
+    lon: 6.96170644915026, 
+    details: `60 rue de Colmar, 88100 SAINTE-MARGUERITE<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.26885005446068,6.96170644915026"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0329351725'>03 29 35 17 25</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>(au 6 rue du Saintois à Laxou)<br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/IMG_st%20die-69dbb5e8.webp", 
+    },
+    { 
+    name: "MG Motor Sarrebourg", 
+    lat: 48.73296306788917, 
+    lon: 7.079898787089109, 
+    details: `Z.A. Ariane Plus, 19 rue Columbia,<br>57400 BUHL-LORRAINE<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.732963067889178,7.079898787089109"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0387718326'>03 87 71 83 26</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/MG%20sarrebourg-14-c48dcbf3.webp", 
+    },
+    { 
+    name: "MG Motor Strasbourg", 
+    lat: 48.62450037389742, 
+    lon: 7.726458739374617, 
+    details: `38 Rue des Tuileries,<br>67460 Souffelweyersheim<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.62450037389742,7.726458739374617"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0388197171'>03 88 19 71 71</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 7h45-12h / 13h45-17h45`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/Strasbourg_site_1-98fc22aa.webp",
+    },
+    { 
+    name: "MG Motor Thionville", 
+    lat: 49.33925734371043, 
+    lon: 6.158968260757651, 
+    details: `12 Allée du Château de Gassion,<br>57100 THIONVILLE<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.33925734371043,6.158968260757651"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel:0382883636'>03 82 88 36 36</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30`,
+    img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC01611-Modifier-da191f89.webp",
+    },
+      ]
+    },
+    "mitsubishi": {
+      color: 'crimson',
+      locations: [
+    { 
+      name: "Mitsubishi motors Metz", 
+      lat: 49.15505417591674, 
+      lon: 6.157620185543059, 
+      details: `85 Av. de Thionville,<br>57140 Woippy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.15505417591674,6.157620185543059"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387223636'> 03 87 22 36 36</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+      img:"https://www.theobald-groupe.com/templates/yootheme/cache/woippy-20-aafbdf38.webp", 
+    },
+    { 
+      name: "Mitsubishi motors Nancy", 
+      lat: 48.691944745313045, 
+      lon: 6.129530089265454, 
+      details: `3 rue du Saintois,<br>54520 Nancy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.691944745313045,6.129530089265454"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0383982324'>03 83 98 23 24</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>(au 6 rue du Saintois à Laxou)<br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+      img:"https://www.theobald-groupe.com/templates/yootheme/cache/concession_mitsubishi-8f9c8a7f.webp",
+    },
+    { 
+      name: "Mitsubishi motor Thionville", 
+      lat: 49.33905771470516, 
+      lon: 6.158871124497198, 
+      details: `12 Allée du Château de Gassion,<br>57100 Thionville<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.33905771470516,6.158871124497198"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0382883636'>03 82 88 36 36</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 9h-12h / 14h-19h<br>Le samedi : 9h-12h / 14h-18h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+      img:"https://www.theobald-groupe.com/templates/yootheme/cache/DSC01615-Modifier-26d0a4cb.webp",
+    },
+    ]
+  },
+    "nissan-trucks": {
+      color: 'orange',
+      locations: [
+      { 
+        name: "Nissan Trucks Epinal", 
+        lat: 48.075497520394514, 
+        lon: 6.594243889587603, 
+        details: `5 rue de l'Ensencement,<br>88200 SAINT-NABORD<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.075497520394514,6.594243889587603"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0329232547'> 03 29 23 25 47</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+      },
+      { 
+        name: "Nissan Trucks Ludres", 
+        lat: 48.62511056294017, 
+        lon: 6.180896898027315, 
+        details: `117 Rue du Franclos,<br>54710 LUDRES<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.62511056294017,6.180896898027315"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0383156400'> 03 83 15 64 00</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+      },
+       { 
+        name: "Nissan Trucks Metz", 
+        lat: 49.229840480791644, 
+        lon: 6.212403192537262, 
+        details: `ZI Garolor,<br>57365 ENNERY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.229840480791644,6.212403192537262"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387737440'> 03 87 73 74 40</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+       },
+       { 
+        name: "Nissan Trucks Sarreguemines", 
+        lat: 49.106722963158894, 
+        lon: 7.099595739936023, 
+        details: `Zone Industrielle 10, 10 Rue Joseph Cugnot Cugno, <br>57200 SARREGUEMINES<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.106722963158894,7.099595739936023"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387272010'> 03 87 27 20 10</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+      },
+      { 
+        name: "Nissan Trucks Thionville", 
+        lat: 49.36322249141413, 
+        lon: 6.201121520198539, 
+        details: `2 Rue des Métiers,<br>57970 YUTZ<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.36322249141413,6.201121520198539"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0382591990'> 03 82 59 19 90</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+      },
+      ]
+    },
+    "schmitz-cargobull": {
+      color: 'gray',
+      locations: [
+      { 
+        name: "Schmitz Cargobull Metz", 
+        lat: 49.2298647470357, 
+        lon: 6.212227845276044, 
+        details: `ZI Garolor, <br>57365 ENNERY<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.2298647470357,6.212227845276044"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387737440'> 03 87 73 74 40"</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+      },
+      { 
+        name: "Schmitz Cargobull Epinal", 
+        lat: 48.07560332197524, 
+        lon: 6.594336635493998, 
+        details: `5 rue de l'Ensencement,<br>88200 SAINT-NABORD<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.07560332197524,6.594336635493998"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0329232547'> 03 29 23 25 47</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+      },
+      { 
+        name: "Schmitz Cargobull Ludres", 
+        lat: 48.625008259615484, 
+        lon: 6.181184054682691, 
+        details: `117 rue du Franclos, <br>54710 LUDRES<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.625008259615484,6.181184054682691"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0383156400'> 03 83 15 64 00</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+      },
+      { 
+        name: "Schmitz Cargobull Sarreguemines", 
+        lat: 49.10672508857425, 
+        lon: 7.099502051168605, 
+        details: `10 Rue Joseph Cugnot,<br>57200 SARREGUEMINES<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.10672508857425,7.099502051168605"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387272010'> 03 87 27 20 10</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+      },
+      { 
+        name: "Schmitz Cargobull Thionville", 
+        lat: 49.363219340484115, 
+        lon: 6.200736100332081, 
+        details: `2 rue des Métiers,<br>57970 YUTZ<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.363219340484115,6.200736100332081"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0382591990'> 03 82 59 19 90</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`, 
+      }
+      ]
+    },
+    "suzuki": {
+      color: 'blue',
+      locations: [
+    { 
+      name: "T-2R Suzuki Nancy", 
+      lat: 48.683853946004405, 
+      lon: 6.201886409782347, 
+      details: `38, rue de Remenauville,<br>54000 Nancy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.683853946004405,6.201886409782347"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0383989696'> 03 83 98 96 96</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+    }
+      ]
+    },
+    "triumph": {
+      color: 'black',
+      locations: [
+    { 
+      name: "T-2R Triumph Nancy", 
+      lat: 48.683838461475794, 
+      lon: 6.201812176371831, 
+      details: `136, rue Baron Buquet,<br>54000 Nancy<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.683838461475794,6.201812176371831"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0383192055'> 03 83 19 20 55</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 14h-18h<br>Le samedi : 8h-12h <br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h`,
+    }
+    ]
+  },
+    "volvo-trucks": {
+      color: 'blue',
+      locations: [
+    {
+      name: "Volvo Trucks Epinal",
+      lat: 48.1502, 
+      lon: 6.6280,
+      details: `5 rue de l'Ensencement,<br> 88200 Saint-Nabord<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.1502,6.6280"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0329232547'> 03 29 23 25 47</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h<br><b><u>Horaires Service pièces:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30<br>Le samedi : 8h-12h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h /13h30-17h30<br>Le samedi : 8h-12h `,
+    },
+    {
+      name: "Volvo Trucks Ludres",
+      lat: 48.6187, lon: 6.1640,
+      details: `117 rue du Franclos, <br>54710 Ludres<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=48.6187,6.1640"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0383156400'> 03 83 15 64 00</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h<br><b><u>Horaires Service pièces:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30<br>Le samedi : 8h-12h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h /13h30-17h30<br>Le samedi : 8h-12h `,
+    },
+    {
+      name: "Volvo Trucks Metz",
+      lat: 49.2104, lon: 6.1719,
+      details: `ZI Garolor, <br>57365 Ennery<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.2104,6.1719"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387737440'> 03 87 73 74 40</a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h<br><b><u>Horaires Service pièces:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30<br>Le samedi : 8h-12h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h /13h30-17h30<br>Le samedi : 8h-12h `,
+    },
+    {
+      name: "Volvo Trucks Sarreguemines",
+      lat: 49.1050, lon: 7.0670,
+      details: `10 Rue Joseph Cugnot,<br>57 200 Sarreguemines<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.1050,7.0670"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0387272010'> 03 87 27 20 10<br></a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h<br><b><u>Horaires Service pièces:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30<br>Le samedi : 8h-12h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h /13h30-17h30<br>Le samedi : 8h-12h `,
+    },
+    {
+      name: "Volvo Trucks Thionville",
+      lat: 49.3570, lon: 6.1695,
+      details: `2 rue des Métiers, 57 970 Yutz<br><i class="fa-solid fa-location-dot"></i><a href="https://www.google.com/maps?q=49.3570,6.1695"> Y aller</a><br><i class='fa fa-phone'></i><a href='tel: 0382591990'> 03 82 59 19 90<br></a><br><b><u>Horaires Service commercial:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-18h<br><b><u>Horaires Service pièces:</u></b><br>Du lundi au vendredi : 8h-12h / 13h30-17h30<br>Le samedi : 8h-12h<br><b><u>Horaires Service après-vente:</u></b><br>Du lundi au vendredi : 8h-12h /13h30-17h30<br>Le samedi : 8h-12h `,
+    }
+      ]
+    }
+  };
+
+  // =======================
+  // Initialisation Leaflet
+  // =======================
+  const map = L.map('map', { center:[initialView.lat, initialView.lon], zoom:initialView.zoom, scrollWheelZoom:false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap contributors' }).addTo(map);
+  const customIcon = L.icon({ iconUrl:'https://www.theobald-groupe.com/templates/yootheme/cache/Picto_carte_Theobald_1-cfb97f92.webp', iconSize:[29,49], iconAnchor:[19,45], popupAnchor:[0,-45] });
+
+  // =======================
+  // Création des marqueurs
+  // =======================
+  function createMarkers(filterBrand=null){
+    allMarkers.forEach(m => map.removeLayer(m));
+    allMarkers = [];
+    let data = filterBrand ? brandsData[filterBrand].locations : Object.values(brandsData).flatMap(b => b.locations);
+    data.forEach(loc => {
+      if(loc.lat && loc.lon){
+        const marker = L.marker([loc.lat, loc.lon], {icon: customIcon}).addTo(map)
+          .bindPopup(`<strong>${loc.name}</strong><br>${loc.details}`);
+        allMarkers.push(marker);
+      }
+    });
+  }
+
+  createMarkers();
+
+  const allLocations = Object.values(brandsData).flatMap(b => b.locations).filter(l => l.lat && l.lon);
+  if(allLocations.length) map.fitBounds(L.latLngBounds(allLocations.map(l=>[l.lat,l.lon])), {padding:[50,50]});
+
+ // =======================
+  // Affichage panneau
+  // =======================
+  function openPanel(brand){
+    if(activeBrand === brand){ closePanelFunc(); return; }
+    activeBrand = brand;
+    const data = brandsData[brand];
+    panelTitle.textContent = brand.replace(/-/g,' ').toUpperCase();
+    concessionsList.innerHTML = '';
+    concessionDetailsDiv.innerHTML = '';
+
+    data.locations.sort((a,b) => a.name.localeCompare(b.name)).forEach(loc=>{
+      const li = document.createElement('li');
+      li.textContent = loc.name;
+
+      li.addEventListener('click', () => {
+        map.setView([loc.lat, loc.lon], 13);
+
+        let html = `<div class="inline-details">
+          <strong>${loc.name}</strong><br>${loc.details}`;
+        if (loc.img && loc.img !== '') {
+          html += '<br><img src="' + loc.img + '" alt="' + loc.name + '" style="max-width:100%; height:auto;">';
+        }
+        html += '</div>';
+
+        if (window.innerWidth <= 768) {
+          // 👉 Mobile toggle
+          const nextEl = li.nextElementSibling;
+          if (nextEl && nextEl.classList.contains('inline-details')) {
+            nextEl.remove(); // ferme si déjà ouvert
+          } else {
+            concessionsList.querySelectorAll('.inline-details').forEach(el => el.remove());
+            li.insertAdjacentHTML('afterend', html);
+            li.nextElementSibling.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        } else {
+          // 👉 Desktop toggle
+          if (concessionDetailsDiv.innerHTML.includes(loc.name)) {
+            concessionDetailsDiv.innerHTML = ''; // referme
+          } else {
+            concessionDetailsDiv.innerHTML = html;
+          }
+        }
+      });
+
+      concessionsList.appendChild(li);
+    });
+
+    sidePanel.classList.add('open');
+    mapContainer.classList.add('shifted');
+    createMarkers(brand);
+    map.fitBounds(L.latLngBounds(data.locations.map(l=>[l.lat,l.lon])), {padding:[50,50]});
+  }
+
+  function closePanelFunc(){
+    activeBrand = null;
+    sidePanel.classList.remove('open');
+    mapContainer.classList.remove('shifted');
+    concessionDetailsDiv.innerHTML = '';
+    createMarkers();
+    map.fitBounds(L.latLngBounds(allLocations.map(l=>[l.lat,l.lon])), {padding:[50,50]});
+  }
+
+  closeBtn.addEventListener('click', closePanelFunc);
+  brandLogos.forEach(logo => logo.addEventListener('click', ()=>openPanel(logo.dataset.brand)));
+
+  if(window.innerWidth <= 768){ 
+    map.dragging.disable(); 
+    map.scrollWheelZoom.disable(); 
+    map.touchZoom.enable(); 
+    map.tap=true; 
+  }
+});
+</script>
